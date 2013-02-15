@@ -3,7 +3,7 @@ require 'mkmf'
 HERE = File.expand_path(File.dirname(__FILE__))
 BUNDLE = Dir.glob("#{HERE}/pHash-*.tar.gz").first
 BUNDLE_PATH = BUNDLE.gsub(".tar.gz", "")
-$CFLAGS = " -x c++ #{ENV["CFLAGS"]}"
+$CFLAGS = " -x c++ #{ENV["CFLAGS"]} -L/usr/X11/lib -I/usr/X11/include"
 $includes = " -I#{HERE}/include"
 $libraries = " -L#{HERE}/lib"
 $LIBPATH = ["#{HERE}/lib"]
@@ -39,7 +39,13 @@ Dir.chdir(HERE) do
     system("cp -f libpHash.a libpHash_gem.a")
     system("cp -f libpHash.la libpHash_gem.la")
   end
-  $LIBS = " -lpthread -lpHash_gem -lstdc++ -ljpeg -lpng"
+  $LIBS = " -lpthread -lpHash_gem -lstdc++ -ljpeg"
+  if have_library("png")
+    $LIBS += " -lpng"
+    puts "png support found"
+  else
+    puts "Warning: png support is disabled"
+  end
 end
 
 create_makefile 'phashion_ext'
